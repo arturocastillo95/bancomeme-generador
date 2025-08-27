@@ -183,6 +183,13 @@ export default function App() {
 
     const receiptRef = useRef();
 
+    // Mobile device detection utilities
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isSafariIOS = isIOS && /Safari/i.test(navigator.userAgent);
+    const hasShareAPI = 'share' in navigator && 'canShare' in navigator;
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === 'senderAccount' || name === 'receiverAccount') {
@@ -369,30 +376,126 @@ export default function App() {
 
                 const finalCanvas = canvas; // Use original canvas for JPEG
 
-                // Create JPEG blob with high quality
+                // Create JPEG blob with EXIF metadata
                 const blobWithExif = await addExifMetadata(finalCanvas, metadata);
+
+                // Mobile-optimized download handling
+                const downloadFile = (blob, filename) => {
+                    // Detect mobile browsers
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+                    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                    
+                    if (isMobile) {
+                        console.log('📱 Mobile device detected - Using mobile-optimized download');
+                        
+                        if (isIOS && isSafari) {
+                            // iOS Safari special handling
+                            try {
+                                // Method 1: Try share API first (iOS 12.2+)
+                                if (navigator.share && navigator.canShare) {
+                                    const file = new File([blob], filename, { type: 'image/jpeg' });
+                                    if (navigator.canShare({ files: [file] })) {
+                                        navigator.share({
+                                            title: 'Recibo BBVA - Bancomeme',
+                                            text: 'Recibo generado con Bancomeme',
+                                            files: [file]
+                                        }).then(() => {
+                                            console.log('✅ File shared successfully via iOS Share API');
+                                        }).catch((error) => {
+                                            console.log('⚠️ Share API failed, falling back to download:', error);
+                                            fallbackDownload(blob, filename);
+                                        });
+                                        return;
+                                    }
+                                }
+                                
+                                // Method 2: Fallback for iOS
+                                fallbackDownload(blob, filename);
+                            } catch (error) {
+                                console.log('⚠️ iOS download failed, using fallback:', error);
+                                fallbackDownload(blob, filename);
+                            }
+                        } else if (navigator.share) {
+                            // Android/modern mobile with Web Share API
+                            try {
+                                const file = new File([blob], filename, { type: 'image/jpeg' });
+                                navigator.share({
+                                    title: 'Recibo BBVA - Bancomeme',
+                                    text: 'Recibo generado con Bancomeme',
+                                    files: [file]
+                                }).then(() => {
+                                    console.log('✅ File shared successfully via Web Share API');
+                                }).catch((error) => {
+                                    console.log('⚠️ Web Share API failed, falling back to download:', error);
+                                    fallbackDownload(blob, filename);
+                                });
+                            } catch (error) {
+                                console.log('⚠️ Mobile share failed, using download:', error);
+                                fallbackDownload(blob, filename);
+                            }
+                        } else {
+                            // Mobile without share API
+                            fallbackDownload(blob, filename);
+                        }
+                    } else {
+                        // Desktop browser - use standard download
+                        fallbackDownload(blob, filename);
+                    }
+                };
                 
-                if (blobWithExif) {
-                        const url = URL.createObjectURL(blobWithExif);
-                        const link = document.createElement('a');
-                        link.download = filename;
-                        link.href = url;
+                const fallbackDownload = (blob, filename) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = filename;
+                    link.href = url;
+                    
+                    // Add additional metadata via HTML5 download attribute
+                    link.setAttribute('data-amount', receiptData.amount);
+                    link.setAttribute('data-receiver', receiptData.receiverName);
+                    link.setAttribute('data-reference', receiptData.reference);
+                    link.setAttribute('data-format', 'JPEG');
+                    link.setAttribute('data-exif', 'true');
+                    
+                    // Mobile-specific improvements
+                    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                        // Add target="_blank" for better mobile compatibility
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
                         
-                        // Add additional metadata via HTML5 download attribute
-                        link.setAttribute('data-amount', receiptData.amount);
-                        link.setAttribute('data-receiver', receiptData.receiverName);
-                        link.setAttribute('data-reference', receiptData.reference);
-                        link.setAttribute('data-format', 'JPEG');
-                        
-                        // Ensure the link is added to DOM for Firefox compatibility
-                        document.body.appendChild(link);
-                        link.click();
+                        // For iOS Safari, we need to handle the download differently
+                        if (/iPhone|iPad|iPod/i.test(navigator.userAgent) && /Safari/i.test(navigator.userAgent)) {
+                            // Create a temporary link that opens in new tab
+                            link.target = '_blank';
+                            // iOS users will need to long-press and "Save to Photos" or "Save to Files"
+                            console.log('📱 iOS Safari: Image will open in new tab. Long-press to save.');
+                        }
+                    }
+                    
+                    // Ensure the link is added to DOM for Firefox and mobile compatibility
+                    document.body.appendChild(link);
+                    
+                    // Add a small delay for mobile browsers
+                    setTimeout(() => {
+                        try {
+                            link.click();
+                        } catch (clickError) {
+                            // If click fails on mobile, try opening in new window
+                            console.log('⚠️ Click failed, trying window.open:', clickError);
+                            window.open(url, '_blank');
+                        }
                         document.body.removeChild(link);
-                        
-                        // Clean up the object URL after a delay
-                        setTimeout(() => {
-                            URL.revokeObjectURL(url);
-                        }, 100);
+                    }, 50);
+                    
+                    // Clean up the object URL after a longer delay for mobile
+                    setTimeout(() => {
+                        URL.revokeObjectURL(url);
+                    }, 1000);
+                };
+
+                // Use the mobile-optimized download function
+                if (blobWithExif) {
+                    downloadFile(blobWithExif, filename);
 
                         // Log export details for analytics/debugging
                         console.log('Receipt exported successfully as JPEG with EXIF metadata:', {
@@ -409,6 +512,40 @@ export default function App() {
                         console.log(`${filename} - High-quality JPEG with embedded EXIF metadata`);
                         console.log('💡 JPEG Benefits: Smaller file size, native EXIF metadata, universal compatibility');
                         console.log('🏷️ EXIF Metadata: Complete transaction details embedded in image file');
+                        
+                        // Show user-friendly message for mobile
+                        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                            const isMobileMessage = /iPhone|iPad|iPod/i.test(navigator.userAgent) && /Safari/i.test(navigator.userAgent)
+                                ? '📱 iOS: Si se abre en una nueva pestaña, mantén presionado y selecciona "Guardar en Fotos" o "Guardar en Archivos"'
+                                : '📱 Archivo descargado. Revisa tu carpeta de descargas o notificaciones.';
+                            
+                            // Simple toast notification
+                            const toast = document.createElement('div');
+                            toast.style.cssText = `
+                                position: fixed;
+                                top: 20px;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                background: #10b981;
+                                color: white;
+                                padding: 12px 20px;
+                                border-radius: 8px;
+                                font-size: 14px;
+                                z-index: 10000;
+                                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                                max-width: 90vw;
+                                text-align: center;
+                                line-height: 1.4;
+                            `;
+                            toast.textContent = isMobileMessage;
+                            document.body.appendChild(toast);
+                            
+                            setTimeout(() => {
+                                if (document.body.contains(toast)) {
+                                    document.body.removeChild(toast);
+                                }
+                            }, 5000);
+                        }
                     }
             } catch (error) {
                 console.error('Error generating JPEG:', error);
@@ -656,6 +793,16 @@ export default function App() {
                                 />
                             </FormSection>
                             
+                            {/* Mobile-specific instructions */}
+                            <div className="block sm:hidden mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <p className="text-xs text-blue-700 text-center">
+                                    {/iPhone|iPad|iPod/i.test(navigator.userAgent) 
+                                        ? '📱 iOS: El archivo se compartirá o abrirá en nueva pestaña. Mantén presionado para guardar.'
+                                        : '📱 Android: El archivo se descargará a tu carpeta de descargas.'
+                                    }
+                                </p>
+                            </div>
+                            
                             <button
                                 onClick={exportAsJPEG}
                                 disabled={isExporting}
@@ -680,7 +827,10 @@ export default function App() {
                                         <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
-                                        <span>Exportar JPEG</span>
+                                        <span className="hidden sm:inline">Exportar JPEG</span>
+                                        <span className="sm:hidden">
+                                            {/iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'Compartir/Guardar' : 'Descargar JPEG'}
+                                        </span>
                                     </>
                                 )}
                             </button>
@@ -689,7 +839,7 @@ export default function App() {
                         <div className="lg:w-3/5 flex items-center justify-center bg-white rounded-2xl p-4 sm:p-6 lg:p-8 order-1 lg:order-2 border border-gray-200 shadow-xl">
                             <div className="text-center w-full">
                                 <h3 className="text-base sm:text-lg font-semibold text-blue-800 mb-3 sm:mb-4">Vista Previa</h3>
-                                <div className="flex justify-center">
+                                <div className="flex justify-center max-sm:overflow-x-auto">
                                     <ReceiptPreview ref={receiptRef} data={receiptData} />
                                 </div>
                             </div>

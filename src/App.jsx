@@ -565,7 +565,7 @@ export default function App() {
                             </FormSection>
 
                             <FormSection 
-                                title="Account & References" 
+                                title="Cuenta y Referencias" 
                                 icon="🏦"
                             >
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">

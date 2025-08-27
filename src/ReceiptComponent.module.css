@@ -60,7 +60,7 @@
   background: #25753b;
   color: white;
   text-align: center;
-  padding: 0 16px 0;
+  padding: 8px 16px 16px;
 }
 
 .successSection h2 {
@@ -75,7 +75,13 @@
   font-size: 18px !important;
   font-style: italic !important;
   margin: 0 !important;
-  padding: 0 !important;
+  padding: 4px 0 !important;
+  line-height: 1.5 !important;
+  height: auto !important;
+  overflow: visible !important;
+  -webkit-font-smoothing: antialiased !important;
+  font-feature-settings: "kern" 1 !important;
+  text-rendering: optimizeLegibility !important;
 }
 
 .amountSection {
@@ -216,6 +222,13 @@
   text-align: left;
   margin: 0 !important;
   padding: 0 !important;
+  /* transform: translateY(-18px) !important; */
+}
+
+/* Export-specific styling for BBVA logo */
+.logoExport {
+  /* Add any export-specific styles here if needed */
+  transform: translateY(-3px) !important;
 }
 
 .lines {
@@ -263,19 +276,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 22px !important;
-  font-weight: 400 !important;
   position: relative;
   z-index: 2;
   margin-right: 9px !important;
   margin-top: 0 !important;
   margin-left: 0 !important;
   margin-bottom: 0 !important;
+  padding: 0 !important;
+}
+
+.circleText {
+  color: white;
+  font-size: 22px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  text-align: center !important;
   padding-bottom: 3px !important;
-  padding-top: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+}
+
+/* Export-specific styling for circle text */
+.circleTextExport {
+  padding-bottom: 23px !important;
 }
 
 .accountDetails {

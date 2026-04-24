@@ -1,5 +1,54 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap');
 
+/* Tiempos Fine Font Family for Dimo Template */
+@font-face {
+  font-family: 'Tiempos Fine';
+  src: url('/fonts/TestTiemposFine-Light-BF66457a50f97fa.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Tiempos Fine';
+  src: url('/fonts/TestTiemposFine-Regular-BF66457a50e8bc9.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Tiempos Fine';
+  src: url('/fonts/TestTiemposFine-Medium-BF66457a50fd08d.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Tiempos Fine';
+  src: url('/fonts/TestTiemposFine-Semibold-BF66457a50f016a.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Tiempos Fine';
+  src: url('/fonts/TestTiemposFine-Bold-BF66457a510211b.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Tiempos Fine';
+  src: url('/fonts/TestTiemposFine-Black-BF66457a5107ceb.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Complete reset for receipt component */
 .receiptWrapper {
   all: initial;
@@ -438,4 +487,842 @@
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+/* ========================================
+   DIMO TEMPLATE STYLES
+   Using Tiempos Fine font family
+   ======================================== */
+
+.dimoPhoneContainer {
+  font-family: 'Tiempos Fine', Georgia, serif !important;
+  width: 400px !important;
+  max-width: 400px !important;
+  min-width: 400px !important;
+  background: #ffffff;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow-y: auto;
+  max-height: 95vh;
+  position: relative;
+  flex-shrink: 0 !important;
+}
+
+.dimoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  background: white;
+}
+
+.dimoHeaderTitle {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 17px !important;
+  font-weight: 400 !important;
+  color: #070e45 !important;
+  letter-spacing: -0.01em;
+}
+
+.dimoCloseBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: #000e95;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  cursor: pointer;
+}
+
+.dimoCloseIcon {
+  width: 22px;
+  height: 22px;
+  color: #000e95;
+  stroke-width: 2.5;
+}
+
+.dimoSuccessSection {
+  background: #ebfff0;
+  padding: 28px 24px 32px;
+  text-align: center;
+  border-radius: 16px;
+  margin: 16px 16px 20px;
+}
+
+.dimoCheckCircle {
+  width: 64px;
+  height: 64px;
+  background: #1e5631;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  box-shadow: none;
+}
+
+.dimoCheckIcon {
+  width: 28px;
+  height: 28px;
+}
+
+.dimoSuccessTitle {
+  font-family: 'Tiempos Fine', Georgia, serif !important;
+  font-size: 30px !important;
+  font-weight: 700 !important;
+  font-style: normal !important;
+  color: #070e45 !important;
+  margin: 0 0 10px 0 !important;
+  letter-spacing: -0.02em;
+}
+
+.dimoAmountLabel {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 13px !important;
+  color: #5a6a7a !important;
+  margin: 0 0 4px 0 !important;
+  font-weight: 400 !important;
+}
+
+.dimoAmount {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 38px !important;
+  font-weight: 300 !important;
+  color: #070e45 !important;
+  margin: 0 !important;
+  letter-spacing: -0.02em;
+}
+
+.dimoDetailsCard {
+  background: #f8f8f8;
+  margin: 0 16px 16px;
+  border-radius: 20px;
+  padding: 8px 24px 16px;
+  box-shadow: none;
+  border: none;
+}
+
+.dimoDetailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: none;
+}
+
+.dimoDetailRow:last-of-type {
+  border-bottom: none;
+}
+
+.dimoDetailLabel {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  color: #0a1148 !important;
+  flex-shrink: 0;
+  font-weight: 300 !important;
+}
+
+.dimoDetailValue {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #070e45 !important;
+  text-align: right;
+  max-width: 58%;
+  word-break: break-word;
+}
+
+.dimoTrackingKey {
+  font-size: 14px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 500 !important;
+  line-height: 1.6;
+  letter-spacing: 0;
+  word-break: break-all;
+}
+
+.dimoInfoNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  background: transparent;
+  border-radius: 0;
+  margin: 8px 0;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 300 !important;
+  color: #0a1148 !important;
+  line-height: 1.5;
+}
+
+.dimoInfoIcon {
+  color: #0a1148;
+  font-size: 14px !important;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.dimoBanxicoSection {
+  text-align: left;
+  padding: 18px 0;
+  border-top: none;
+  margin-top: 10px;
+}
+
+.dimoBanxicoSection p {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 13px !important;
+  color: #6b7a8a !important;
+  margin: 0 0 4px 0 !important;
+}
+
+.dimoBanxicoLink {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  color: #000e95 !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+}
+
+.dimoEmailSection {
+  text-align: left;
+  padding: 14px 0 0;
+}
+
+.dimoEmailSection p {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 13px !important;
+  color: #6b7a8a !important;
+  margin: 0 0 4px 0 !important;
+}
+
+.dimoEmail {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #000029 !important;
+}
+
+.dimoInfoBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: #e3f2fd;
+  margin: 0 16px 20px;
+  padding: 18px 20px;
+  border-radius: 14px;
+}
+
+.dimoInfoBoxIcon {
+  color: #000e95;
+  font-size: 18px !important;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.dimoInfoBox p {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 13px !important;
+  color: #070e45 !important;
+  margin: 0 0 6px 0 !important;
+  line-height: 1.5;
+}
+
+.dimoMoreInfoLink {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  color: #000e95 !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+}
+
+.dimoShareSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 0 32px;
+  gap: 10px;
+}
+
+.dimoShareIcon {
+  width: 44px;
+  height: 44px;
+  color: #000e95;
+}
+
+.dimoShareIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.dimoShareText {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  color: #000e95 !important;
+  font-weight: 500 !important;
+}
+
+/* ========================================
+   INTERNATIONAL TEMPLATE STYLES
+   ======================================== */
+
+.intlPhoneContainer {
+  font-family: 'Inter', sans-serif !important;
+  width: 500px !important;
+  max-width: 500px !important;
+  min-width: 500px !important;
+  background: #efefef;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow-y: auto;
+  max-height: 95vh;
+  position: relative;
+  flex-shrink: 0 !important;
+}
+
+.intlHeader {
+  background: #004b8f;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px 18px;
+}
+
+.intlHeaderTitle {
+  font-size: 18px !important;
+  font-weight: 200 !important;
+  margin: 0 !important;
+}
+
+.intlCloseIcon {
+  width: 30px;
+  height: 30px;
+  color: #ffffff;
+}
+
+.intlHeroSection {
+  background: #004b8f;
+  color: #ffffff;
+  text-align: center;
+  padding: 8px 24px 72px;
+}
+
+.intlStatus {
+  font-size: 24px !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0;
+  font-weight: 600 !important;
+  margin: 16px 0 28px !important;
+}
+
+.intlAmountLabel {
+  font-size: 18px !important;
+  font-weight: 400 !important;
+  margin-bottom: 3px !important;
+}
+
+.intlAmount {
+  font-size: 38px !important;
+  line-height: 1 !important;
+  font-weight: 100 !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  position: relative;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.intlAmount::before {
+  display: inline-block;
+  content: '$';
+  font-size: 24px !important;
+  font-weight: 200 !important;
+  transform: translateY(-9px);
+  margin-right: 4px !important;
+}
+
+.intlFeesBlock {
+  margin-top: 11px;
+}
+
+.intlFee {
+  font-size: 18px !important;
+  font-style: italic !important;
+  font-weight: 200 !important;
+  opacity: 0.9;
+  margin: 0 0 4px 0 !important;
+}
+
+.intlSummaryList {
+  margin-top: 30px;
+}
+
+.intlSummaryRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 18px !important;
+  font-weight: 300 !important;
+  margin-bottom: 28px !important;
+  text-align: left;
+}
+
+.intlSummaryRow:last-child {
+  margin-bottom: 0 !important;
+}
+
+.intlSummaryRow span:last-child {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.intlBody {
+  background: #efefef;
+  padding: 0 24px 30px;
+}
+
+.intlAccountSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0;
+  margin-bottom: 22px;
+}
+
+.intlAccountSection .accountContainer {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  margin: -38px auto 12px !important;
+}
+
+.intlAccountCapsule {
+  width: 196px;
+  height: 92px;
+  border-radius: 46px;
+  background: #dcdcdc;
+  margin: 0 auto 12px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.intlAccountCapsule::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 51%;
+  width: 42px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.32);
+  transform: skewX(-20deg) translateX(-50%);
+}
+
+.intlCardMock {
+  width: 80px;
+  height: 50px;
+  border-radius: 11px;
+  background: linear-gradient(130deg, #004b8f 0%, #0a65b8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-left: 10px;
+}
+
+.intlCardLines {
+  width: 42px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.intlCardLines span {
+  width: 100%;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.intlCoin {
+  position: absolute;
+  right: -9px;
+  bottom: -8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f4c744;
+  color: #ffffff;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.intlAvatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 22px !important;
+  font-weight: 400 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.intlAccountsRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+  padding: 0 18px;
+}
+
+.intlAccountItem {
+  flex: 1;
+  color: #111111 !important;
+}
+
+.intlSender {
+  text-align: right;
+}
+
+.intlAccountName {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  margin-bottom: 7px !important;
+  line-height: 1.2 !important;
+}
+
+.intlAccountNumber {
+  font-size: 18px !important;
+  font-style: italic !important;
+  font-weight: 300 !important;
+  margin-bottom: 8px !important;
+}
+
+.intlReceiverName {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  margin-bottom: 7px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.intlSwift,
+.intlBank {
+  font-size: 17px !important;
+  font-style: italic !important;
+  font-weight: 300 !important;
+  margin-bottom: 6px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.intlDetailsSection {
+  text-align: center;
+  padding-top: 10px;
+}
+
+.intlDetailItem {
+  margin-bottom: 18px !important;
+}
+
+.intlDetailLabel {
+  font-size: 16px !important;
+  color: #757575 !important;
+  margin-bottom: 3px !important;
+  font-weight: 300 !important;
+}
+
+.intlDetailValue {
+  font-size: 17px !important;
+  color: #111111 !important;
+  font-weight: 300 !important;
+  line-height: 1.3 !important;
+  word-break: break-word;
+}
+
+.intlInfoCard {
+  background: #d2e7f5;
+  text-align: center;
+  padding: 24px 22px;
+  margin: 18px 0 0;
+}
+
+.intlInfoIcon {
+  width: 34px;
+  height: 34px;
+  color: #003a66;
+  display: block;
+  margin: 0 auto 20px;
+  overflow: visible;
+}
+
+.intlInfoIcon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.intlInfoIcon circle,
+.intlInfoIcon line {
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.intlInfoText {
+  color: #13283d !important;
+  font-size: 16px !important;
+  font-weight: 300 !important;
+  line-height: 1.55 !important;
+  margin: 0 0 18px !important;
+}
+
+.intlInfoText:last-child {
+  margin-bottom: 0 !important;
+}
+
+.intlInfoEmail {
+  color: #121212 !important;
+  font-size: 19px !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+}
+
+/* Export-only adjustments for international template to avoid html2canvas clipping artifacts */
+.intlExportMode .intlAccountSection .accountContainer {
+  margin-top: -34px !important;
+}
+
+.intlExportMode .intlAccountsRow {
+  padding-top: 4px !important;
+}
+
+.intlExportMode .intlAccountName,
+.intlExportMode .intlAccountNumber,
+.intlExportMode .intlReceiverName,
+.intlExportMode .intlSwift,
+.intlExportMode .intlBank {
+  line-height: 1.35 !important;
+}
+
+.intlExportMode .intlReceiverName,
+.intlExportMode .intlSwift,
+.intlExportMode .intlBank {
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* ========================================
+   BBVA PROOF TEMPLATE STYLES
+   ======================================== */
+
+.bbvaProofContainer {
+  font-family: 'Inter', sans-serif !important;
+  width: 430px !important;
+  max-width: 430px !important;
+  min-width: 430px !important;
+  background: #f5f6f8;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.18);
+  overflow-y: auto;
+  max-height: 95vh;
+  position: relative;
+  flex-shrink: 0 !important;
+}
+
+.bbvaProofInner {
+  padding: 28px 22px 42px;
+}
+
+.bbvaProofLogo {
+  width: 118px;
+  height: auto;
+  display: block;
+  margin-bottom: 34px;
+}
+
+.bbvaProofKicker {
+  color: #0c4b8e !important;
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.03em;
+  margin-bottom: 28px !important;
+}
+
+.bbvaProofCard {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 24px 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 0 rgba(12, 75, 142, 0.02);
+}
+
+.bbvaProofField {
+  margin-bottom: 28px;
+}
+
+.bbvaProofFieldCompact {
+  margin-bottom: 0;
+}
+
+.bbvaProofField:last-child,
+.bbvaProofFieldCompact:last-child {
+  margin-bottom: 0;
+}
+
+.bbvaProofLabel {
+  color: #22325b !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.35 !important;
+  margin-bottom: 6px !important;
+}
+
+.bbvaProofValueStrong {
+  color: #111b4d !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+}
+
+.bbvaProofTracking {
+  word-break: break-all;
+}
+
+.bbvaProofAmount {
+  color: #111b4d !important;
+  font-size: 17px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+}
+
+.bbvaProofLink {
+  color: #111b4d !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  word-break: break-word;
+}
+
+.bbvaProofFooter {
+  color: #707785 !important;
+  font-size: 12px !important;
+  line-height: 1.7 !important;
+  padding: 4px 10px 0;
+}
+
+.bbvaProofFooter p + p {
+  margin-top: 6px !important;
+}
+
+/* Responsive adjustments for Dimo template */
+@media (max-width: 480px) {
+  .dimoPhoneContainer {
+    width: 100% !important;
+    min-width: 320px !important;
+    max-width: 100% !important;
+  }
+  
+  .dimoAmount {
+    font-size: 32px !important;
+  }
+  
+  .dimoSuccessTitle {
+    font-size: 22px !important;
+  }
+
+  .intlPhoneContainer {
+    width: 100% !important;
+    min-width: 320px !important;
+    max-width: 100% !important;
+  }
+
+  .intlHeader {
+    padding: 18px 16px 14px;
+  }
+
+  .intlHeaderTitle {
+    font-size: 17px !important;
+  }
+
+  .intlStatus {
+    font-size: 24px !important;
+  }
+
+  .intlAmount {
+    font-size: 38px !important;
+  }
+
+  .intlHeroSection {
+    padding: 8px 16px 70px;
+  }
+
+  .intlBody {
+    padding: 0 14px 22px;
+  }
+
+  .intlAccountsRow {
+    padding: 0 6px;
+    gap: 12px;
+  }
+
+  .intlAccountName,
+  .intlAccountNumber {
+    font-size: 18px !important;
+  }
+
+  .intlReceiverName {
+    font-size: 18px !important;
+  }
+
+  .intlSwift,
+  .intlBank {
+    font-size: 15px !important;
+  }
+
+  .intlInfoCard {
+    padding: 20px 16px;
+  }
+
+  .bbvaProofContainer {
+    width: 100% !important;
+    min-width: 320px !important;
+    max-width: 100% !important;
+  }
+
+  .bbvaProofInner {
+    padding: 24px 18px 36px;
+  }
+
+  .bbvaProofCard {
+    border-radius: 16px;
+    padding: 22px 16px;
+  }
+
+  .bbvaProofLogo {
+    width: 112px;
+    margin-bottom: 30px;
+  }
+
+  .bbvaProofKicker {
+    font-size: 16px !important;
+    margin-bottom: 24px !important;
+  }
 }

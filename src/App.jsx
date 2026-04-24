@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import piexif from 'piexifjs';
 import styles from './ReceiptComponent.module.css';
+import bbva2019Logo from './assets/BBVA_2019.svg.png';
 
 // Helpers to format current date/time in Spanish style used by the receipt
 const ES_MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -61,7 +62,15 @@ const FormSection = ({ title, children, icon }) => (
     </div>
 );
 
-// The receipt preview component, now using CSS modules for complete isolation
+// Template types
+const TEMPLATES = {
+    TRANSFERIR: 'transferir',
+    DIMO: 'dimo',
+    INTERNATIONAL: 'international',
+    BBVA_PROOF: 'bbva-proof'
+};
+
+// The original receipt preview component (Transferir template)
 const ReceiptPreview = React.forwardRef(({ data }, ref) => {
     const formatAccount = (account) => `•${account.slice(-5)}`;
     const formatAmount = (amount) => {
@@ -160,8 +169,399 @@ const ReceiptPreview = React.forwardRef(({ data }, ref) => {
     );
 });
 
+// Dimo receipt template component
+const DimoReceiptPreview = React.forwardRef(({ data }, ref) => {
+    const formatAmount = (amount) => {
+        const number = parseFloat(amount);
+        return isNaN(number) ? '0.00' : number.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+    const formatAccount = (account) => `•${account.slice(-4)}`;
+
+    // Format date for Dimo style: "15 dic 2025, 13:52 h." (no seconds)
+    const formatDimoDate = () => {
+        const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+        const d = new Date();
+        // Remove seconds from time (HH:MM:SS -> HH:MM)
+        const timeWithoutSeconds = data.time.split(':').slice(0, 2).join(':');
+        return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}, ${timeWithoutSeconds} h.`;
+    };
+
+    return (
+        <div className={styles.receiptWrapper}>
+            <div id="phone-mock" ref={ref} className={styles.dimoPhoneContainer}>
+                {/* Header */}
+                <header className={styles.dimoHeader}>
+                    <span className={styles.dimoHeaderTitle}>Transferir & Dimo®</span>
+                    <div className={styles.dimoCloseBtn}>
+                        <svg viewBox="0 0 24 24" className={styles.dimoCloseIcon}>
+                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                        </svg>
+                        <span>Cerrar</span>
+                    </div>
+                </header>
+
+                {/* Success Section */}
+                <div className={styles.dimoSuccessSection}>
+                    <div className={styles.dimoCheckCircle}>
+                        <svg viewBox="0 0 24 24" className={styles.dimoCheckIcon}>
+                            <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                        </svg>
+                    </div>
+                    <h2 className={styles.dimoSuccessTitle}>Transferencia exitosa</h2>
+                    <p className={styles.dimoAmountLabel}>Monto transferido</p>
+                    <p className={styles.dimoAmount}>$ {formatAmount(data.amount)}</p>
+                </div>
+
+                {/* Details Card */}
+                <div className={styles.dimoDetailsCard}>
+                    <div className={styles.dimoDetailRow}>
+                        <span className={styles.dimoDetailLabel}>Origen</span>
+                        <span className={styles.dimoDetailValue}>Cuenta de Ahorro {formatAccount(data.senderAccount)}</span>
+                    </div>
+                    <div className={styles.dimoDetailRow}>
+                        <span className={styles.dimoDetailLabel}>Destino</span>
+                        <span className={styles.dimoDetailValue}>{data.receiverBank} {formatAccount(data.receiverAccount)} {data.receiverName}</span>
+                    </div>
+                    
+                    <div className={styles.dimoInfoNote}>
+                        <span className={styles.dimoInfoIcon}>ⓘ</span>
+                        <span>El nombre del beneficiario de esta operación es un dato no verificado por la institución.</span>
+                    </div>
+
+                    <div className={styles.dimoDetailRow}>
+                        <span className={styles.dimoDetailLabel}>Comisión</span>
+                        <span className={styles.dimoDetailValue}>$ 0.00</span>
+                    </div>
+                    <div className={styles.dimoDetailRow}>
+                        <span className={styles.dimoDetailLabel}>Concepto</span>
+                        <span className={styles.dimoDetailValue}>{data.concept}</span>
+                    </div>
+                    <div className={styles.dimoDetailRow}>
+                        <span className={styles.dimoDetailLabel}>Referencia</span>
+                        <span className={styles.dimoDetailValue}>{data.reference}</span>
+                    </div>
+                    <div className={styles.dimoDetailRow}>
+                        <span className={styles.dimoDetailLabel}>Tipo de operación</span>
+                        <span className={styles.dimoDetailValue}>Transferencia a otros bancos</span>
+                    </div>
+                    <div className={styles.dimoDetailRow}>
+                        <span className={styles.dimoDetailLabel}>Folio de operación</span>
+                        <span className={styles.dimoDetailValue}>{data.folio}</span>
+                    </div>
+                    <div className={styles.dimoDetailRow}>
+                        <span className={styles.dimoDetailLabel}>Fecha de operación</span>
+                        <span className={styles.dimoDetailValue}>{formatDimoDate()}</span>
+                    </div>
+                    <div className={styles.dimoDetailRow}>
+                        <span className={styles.dimoDetailLabel}>Clave de rastreo</span>
+                        <span className={`${styles.dimoDetailValue} ${styles.dimoTrackingKey}`}>{data.trackingKey}</span>
+                    </div>
+
+                    <div className={styles.dimoBanxicoSection}>
+                        <p>Verifica el estatus de tu transferencia</p>
+                        <a href="#" className={styles.dimoBanxicoLink}>www.banxico.org.mx/cep</a>
+                    </div>
+
+                    <div className={styles.dimoEmailSection}>
+                        <p>Recibirás el comprobante de tu transferencia al correo:</p>
+                        <p className={styles.dimoEmail}>•{data.email}</p>
+                    </div>
+                </div>
+
+                {/* Info Box */}
+                <div className={styles.dimoInfoBox}>
+                    <span className={styles.dimoInfoBoxIcon}>ⓘ</span>
+                    <div>
+                        <p>Conoce los requisitos para realizar una aclaración SPEI.</p>
+                        <a href="#" className={styles.dimoMoreInfoLink}>Más información</a>
+                    </div>
+                </div>
+
+                {/* Share Button */}
+                <div className={styles.dimoShareSection}>
+                    <div className={styles.dimoShareIcon}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="18" cy="5" r="3"/>
+                            <circle cx="6" cy="12" r="3"/>
+                            <circle cx="18" cy="19" r="3"/>
+                            <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/>
+                        </svg>
+                    </div>
+                    <span className={styles.dimoShareText}>Compartir</span>
+                </div>
+            </div>
+        </div>
+    );
+});
+
+// International transfer receipt template component
+const InternationalReceiptPreview = React.forwardRef(({ data }, ref) => {
+    const formatAmount = (amount) => {
+        const number = parseFloat(amount);
+        return isNaN(number) ? '0.00' : number.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+    const formatAccount = (account) => `•${String(account || '').slice(-4)}`;
+    const getInitials = (name) => {
+        const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+        if (parts.length === 0) {
+            return 'NA';
+        }
+        if (parts.length === 1) {
+            return parts[0].slice(0, 2).toUpperCase();
+        }
+        return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    };
+    const getDestinationAmount = () => {
+        const symbolMap = {
+            EUR: '€',
+            USD: 'USD',
+            GBP: '£',
+            JPY: 'JPY'
+        };
+        const currency = String(data.destinationCurrency || 'EUR').toUpperCase();
+        const symbol = symbolMap[currency] || currency;
+        const amount = formatAmount(data.destinationAmount);
+        if (symbol.length === 1 || symbol === 'USD') {
+            return `${amount}${symbol}`;
+        }
+        return `${amount} ${symbol}`;
+    };
+
+    return (
+        <div className={styles.receiptWrapper}>
+            <div id="phone-mock" ref={ref} className={styles.intlPhoneContainer}>
+                <header className={styles.intlHeader}>
+                    <h1 className={styles.intlHeaderTitle}>Transferencia Internacional</h1>
+                    <svg viewBox="0 0 24 24" className={styles.intlCloseIcon}>
+                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                </header>
+
+                <section className={styles.intlHeroSection}>
+                    <h2 className={styles.intlStatus}>Operación en proceso</h2>
+                    <p className={styles.intlAmountLabel}>Importe a transferir</p>
+                    <p className={styles.intlAmount}>{formatAmount(data.amount)}</p>
+                    <div className={styles.intlFeesBlock}>
+                        <p className={styles.intlFee}>Comisión por transferencia ${formatAmount(data.transferCommission)}</p>
+                        <p className={styles.intlFee}>IVA de la comisión ${formatAmount(data.commissionVAT)}</p>
+                    </div>
+
+                    <div className={styles.intlSummaryList}>
+                        <div className={styles.intlSummaryRow}>
+                            <span>Importe a cargar</span>
+                            <span>${formatAmount(data.debitAmount || data.amount)}</span>
+                        </div>
+                        <div className={styles.intlSummaryRow}>
+                            <span>Importe en divisa destino</span>
+                            <span>{getDestinationAmount()}</span>
+                        </div>
+                        <div className={styles.intlSummaryRow}>
+                            <span>Tipo de cambio</span>
+                            <span>{data.exchangeRate}</span>
+                        </div>
+                    </div>
+                </section>
+
+                <div className={styles.intlBody}>
+                    <div className={styles.intlAccountSection}>
+                        <div className={styles.accountContainer}>
+                            <div className={styles.bbvaCard}>
+                                <div className={styles.cardHighlight}></div>
+                                <div className={styles.logo}>BBVA</div>
+                                <div className={styles.lines}>
+                                    <div className={styles.line}></div>
+                                    <div className={styles.line}></div>
+                                </div>
+                            </div>
+                            <div className={styles.edCircle} style={{ backgroundColor: data.circleColor }}>
+                                <div className={styles.circleText}>
+                                    {getInitials(data.receiverName)}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={styles.intlAccountsRow}>
+                            <div className={`${styles.intlAccountItem} ${styles.intlSender}`}>
+                                <p className={styles.intlAccountName}>Cuenta Corriente</p>
+                                <p className={styles.intlAccountNumber}>{formatAccount(data.senderAccount)}</p>
+                            </div>
+                            <div className={styles.intlAccountItem}>
+                                <p className={styles.intlReceiverName}>{data.receiverName}</p>
+                                <p className={styles.intlAccountNumber}>{formatAccount(data.receiverAccount)}</p>
+                                <p className={styles.intlSwift}>{data.receiverSwift}</p>
+                                <p className={styles.intlBank}>{data.receiverBank}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={styles.intlDetailsSection}>
+                        <div className={styles.intlDetailItem}>
+                            <p className={styles.intlDetailLabel}>Referencia</p>
+                            <p className={styles.intlDetailValue}>{data.reference}</p>
+                        </div>
+                        <div className={styles.intlDetailItem}>
+                            <p className={styles.intlDetailLabel}>Relación con el destinatario</p>
+                            <p className={styles.intlDetailValue}>{data.relationship}</p>
+                        </div>
+                        <div className={styles.intlDetailItem}>
+                            <p className={styles.intlDetailLabel}>Motivo de la transferencia</p>
+                            <p className={styles.intlDetailValue}>{data.transferReason}</p>
+                        </div>
+                        <div className={styles.intlDetailItem}>
+                            <p className={styles.intlDetailLabel}>Concepto</p>
+                            <p className={styles.intlDetailValue}>{data.concept}</p>
+                        </div>
+                        <div className={styles.intlDetailItem}>
+                            <p className={styles.intlDetailLabel}>Tipo de operación</p>
+                            <p className={styles.intlDetailValue}>{data.internationalOperationType}</p>
+                        </div>
+                        <div className={styles.intlDetailItem}>
+                            <p className={styles.intlDetailLabel}>Actividad económica actual</p>
+                            <p className={styles.intlDetailValue}>{data.economicActivity}</p>
+                        </div>
+                        <div className={styles.intlDetailItem}>
+                            <p className={styles.intlDetailLabel}>Número de folio</p>
+                            <p className={styles.intlDetailValue}>{data.internationalFolio}</p>
+                        </div>
+                    </div>
+
+                    <div className={styles.intlInfoCard}>
+                        <div className={styles.intlInfoIcon} aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="10.5" x2="12" y2="17"></line>
+                                <line x1="12" y1="7" x2="12" y2="7.1"></line>
+                            </svg>
+                        </div>
+                        <p className={styles.intlInfoText}>
+                            Recibirás el comprobante de esta transferencia en el correo:
+                        </p>
+                        <p className={styles.intlInfoEmail}>•{data.email}</p>
+                    </div>
+
+                    <div className={styles.intlInfoCard}>
+                        <div className={styles.intlInfoIcon} aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="10.5" x2="12" y2="17"></line>
+                                <line x1="12" y1="7" x2="12" y2="7.1"></line>
+                            </svg>
+                        </div>
+                        <p className={styles.intlInfoText}>
+                            La transferencia puede tardar hasta 15 días hábiles en verse reflejada debido a los horarios y políticas del banco receptor.
+                        </p>
+                        <p className={styles.intlInfoText}>
+                            Considera que el banco destino podría aplicar alguna comisión extra sobre el monto total.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+});
+
+const BbvaProofReceiptPreview = React.forwardRef(({ data }, ref) => {
+    const formatAmount = (amount) => {
+        const number = parseFloat(amount);
+        return isNaN(number)
+            ? '0.00'
+            : number.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+    const formatAccount = (account) => `•${String(account || '').slice(-4)}`;
+    const formatTimeShort = (timeValue) => {
+        const parts = String(timeValue || '').split(':');
+        return `${parts[0] || '00'}:${parts[1] || '00'} h`;
+    };
+
+    return (
+        <div className={styles.receiptWrapper}>
+            <div id="phone-mock" ref={ref} className={styles.bbvaProofContainer}>
+                <div className={styles.bbvaProofInner}>
+                    <img src={bbva2019Logo} alt="BBVA" className={styles.bbvaProofLogo} />
+                    <p className={styles.bbvaProofKicker}>COMPROBANTE DE LA OPERACION</p>
+
+                    <section className={styles.bbvaProofCard}>
+                        <div className={styles.bbvaProofField}>
+                            <p className={styles.bbvaProofLabel}>Tipo de operación</p>
+                            <p className={styles.bbvaProofValueStrong}>{data.bbvaOperationType}</p>
+                        </div>
+                        <div className={styles.bbvaProofField}>
+                            <p className={styles.bbvaProofLabel}>Folio de la operación</p>
+                            <p className={styles.bbvaProofValueStrong}>{data.folio}</p>
+                        </div>
+                        <div className={styles.bbvaProofField}>
+                            <p className={styles.bbvaProofLabel}>Fecha</p>
+                            <p className={styles.bbvaProofValueStrong}>{data.date}</p>
+                        </div>
+                        <div className={styles.bbvaProofField}>
+                            <p className={styles.bbvaProofLabel}>Hora</p>
+                            <p className={styles.bbvaProofValueStrong}>{formatTimeShort(data.time)}</p>
+                        </div>
+                        <div className={styles.bbvaProofField}>
+                            <p className={styles.bbvaProofLabel}>Concepto</p>
+                            <p className={styles.bbvaProofValueStrong}>{data.concept}</p>
+                        </div>
+                        <div className={styles.bbvaProofField}>
+                            <p className={styles.bbvaProofLabel}>Clave de rastreo</p>
+                            <p className={`${styles.bbvaProofValueStrong} ${styles.bbvaProofTracking}`}>
+                                {data.trackingKey}
+                            </p>
+                        </div>
+                    </section>
+
+                    <section className={styles.bbvaProofCard}>
+                        <div className={styles.bbvaProofFieldCompact}>
+                            <p className={styles.bbvaProofLabel}>Importe transferido</p>
+                            <p className={styles.bbvaProofAmount}>$ {formatAmount(data.amount)}</p>
+                        </div>
+                    </section>
+
+                    <section className={styles.bbvaProofCard}>
+                        <div className={styles.bbvaProofFieldCompact}>
+                            <p className={styles.bbvaProofLabel}>Cuenta de origen</p>
+                            <p className={styles.bbvaProofValueStrong}>{formatAccount(data.senderAccount)}</p>
+                        </div>
+                    </section>
+
+                    <section className={styles.bbvaProofCard}>
+                        <div className={styles.bbvaProofField}>
+                            <p className={styles.bbvaProofLabel}>Nombre del beneficiario</p>
+                            <p className={styles.bbvaProofValueStrong}>{data.receiverName}</p>
+                        </div>
+                        <div className={styles.bbvaProofField}>
+                            <p className={styles.bbvaProofLabel}>Nombre del banco</p>
+                            <p className={styles.bbvaProofValueStrong}>{data.receiverBank}</p>
+                        </div>
+                        <div className={styles.bbvaProofFieldCompact}>
+                            <p className={styles.bbvaProofLabel}>Cuenta de destino</p>
+                            <p className={styles.bbvaProofValueStrong}>{formatAccount(data.receiverAccount)}</p>
+                        </div>
+                    </section>
+
+                    <section className={styles.bbvaProofCard}>
+                        <div className={styles.bbvaProofField}>
+                            <p className={styles.bbvaProofLabel}>Verifica el estatus de tu operación en</p>
+                            <p className={styles.bbvaProofLink}>{data.bbvaCepUrl}</p>
+                        </div>
+                        <div className={styles.bbvaProofFieldCompact}>
+                            <p className={styles.bbvaProofLabel}>Información sobre aclaración SPEI en</p>
+                            <p className={styles.bbvaProofLink}>{data.bbvaAclaracionUrl}</p>
+                        </div>
+                    </section>
+
+                    <footer className={styles.bbvaProofFooter}>
+                        <p>{data.bbvaFooterLine1}</p>
+                        <p>{data.bbvaFooterLine2}</p>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    );
+});
+
 // Main App Component
 export default function App() {
+    const [selectedTemplate, setSelectedTemplate] = useState(TEMPLATES.TRANSFERIR);
     const [receiptData, setReceiptData] = useState(() => ({
         date: getNowDateEs(),
         time: getNowTime24(),
@@ -176,6 +576,23 @@ export default function App() {
         trackingKey: getRandomTrackingKey(),
         email: 'ay@gmail.com',
         circleColor: '#2979ff',
+        transferCommission: '0.00',
+        commissionVAT: '0.00',
+        debitAmount: '100.00',
+        destinationAmount: '4.77',
+        destinationCurrency: 'EUR',
+        exchangeRate: '1 EUR = 20.9447 MXN',
+        relationship: 'Personal',
+        transferReason: 'Pago de servicios',
+        internationalOperationType: 'Transferencia internacional',
+        receiverSwift: 'BSCHESMMXXX',
+        economicActivity: 'GESTOR CULTURAL',
+        internationalFolio: '8355212',
+        bbvaOperationType: 'Transferencia a otros bancos',
+        bbvaCepUrl: 'https://www.banxico.org.mx/cep/',
+        bbvaAclaracionUrl: 'www.bbva.mx',
+        bbvaFooterLine1: 'BBVA México, S.A., Institución de Banca Múltiple, Grupo Financiero BBVA México.',
+        bbvaFooterLine2: 'Avenida Paseo de la Reforma 510, colonia Juárez, código postal 06600, alcaldía Cuauhtémoc, Ciudad de México.',
     }));
 
     const [isExporting, setIsExporting] = useState(false);
@@ -215,9 +632,17 @@ export default function App() {
             const originalAspectRatio = phoneContainer.style.aspectRatio;
             const originalOverflow = phoneContainer.style.overflowY;
             
-            // Find circle text element and BBVA logo element, add export-specific classes
-            const circleTextElement = phoneContainer.querySelector(`.${styles.circleText}`);
-            const logoElement = phoneContainer.querySelector(`.${styles.logo}`);
+            // Export tweaks were tuned for classic transfer template only.
+            const shouldApplyClassicExportTweaks =
+                selectedTemplate === TEMPLATES.TRANSFERIR ||
+                selectedTemplate === TEMPLATES.INTERNATIONAL;
+            const shouldApplyInternationalExportTweaks = selectedTemplate === TEMPLATES.INTERNATIONAL;
+            const circleTextElement = shouldApplyClassicExportTweaks
+                ? phoneContainer.querySelector(`.${styles.circleText}`)
+                : null;
+            const logoElement = shouldApplyClassicExportTweaks
+                ? phoneContainer.querySelector(`.${styles.logo}`)
+                : null;
             
             try {
                 if (circleTextElement) {
@@ -225,6 +650,9 @@ export default function App() {
                 }
                 if (logoElement) {
                     logoElement.classList.add(styles.logoExport);
+                }
+                if (shouldApplyInternationalExportTweaks) {
+                    phoneContainer.classList.add(styles.intlExportMode);
                 }
                 
                 phoneContainer.style.maxHeight = 'none';
@@ -238,7 +666,7 @@ export default function App() {
                 const canvas = await html2canvas(phoneContainer, {
                     useCORS: true,
                     backgroundColor: 'white',
-                    scale: 2,
+                    scale: shouldApplyInternationalExportTweaks ? 3 : 2,
                     logging: false,
                     height: phoneContainer.scrollHeight,
                     width: phoneContainer.scrollWidth,
@@ -373,11 +801,21 @@ export default function App() {
                         }, 'image/jpeg', 0.92);
                     });
                 };
+                
+                const canvasToJpegBlob = (canvas) => {
+                    return new Promise((resolve) => {
+                        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.92);
+                    });
+                };
 
                 const finalCanvas = canvas; // Use original canvas for JPEG
 
-                // Create JPEG blob with EXIF metadata
-                const blobWithExif = await addExifMetadata(finalCanvas, metadata);
+                // International template is taller and can show artifacts with EXIF byte insertion
+                // on some viewers/devices. Use direct JPEG blob for compatibility.
+                const shouldEmbedExif = selectedTemplate !== TEMPLATES.INTERNATIONAL;
+                const exportBlob = shouldEmbedExif
+                    ? await addExifMetadata(finalCanvas, metadata)
+                    : await canvasToJpegBlob(finalCanvas);
 
                 // Mobile-optimized download handling
                 const downloadFile = (blob, filename) => {
@@ -494,17 +932,17 @@ export default function App() {
                 };
 
                 // Use the mobile-optimized download function
-                if (blobWithExif) {
-                    downloadFile(blobWithExif, filename);
+                if (exportBlob) {
+                    downloadFile(exportBlob, filename);
 
                         // Log export details for analytics/debugging
                         console.log('Receipt exported successfully as JPEG with EXIF metadata:', {
                             filename,
-                            fileSize: `${(blobWithExif.size / 1024).toFixed(1)}KB`,
+                            fileSize: `${(exportBlob.size / 1024).toFixed(1)}KB`,
                             dimensions: `${finalCanvas.width}x${finalCanvas.height}`,
                             format: 'JPEG',
                             quality: '92%',
-                            exifMetadata: 'Embedded',
+                            exifMetadata: shouldEmbedExif ? 'Embedded' : 'Disabled for compatibility',
                             metadata
                         });
                         
@@ -561,6 +999,9 @@ export default function App() {
                 }
                 if (logoElement) {
                     logoElement.classList.remove(styles.logoExport);
+                }
+                if (shouldApplyInternationalExportTweaks) {
+                    phoneContainer.classList.remove(styles.intlExportMode);
                 }
                 
                 setIsExporting(false);
@@ -661,6 +1102,82 @@ export default function App() {
                                     <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
+                                </div>
+                            </div>
+
+                            {/* Template Selector */}
+                            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                                <h3 className="text-sm sm:text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                    <span className="mr-2 text-blue-600">🎨</span>
+                                    Selecciona el Estilo del Recibo
+                                </h3>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                                    <button
+                                        onClick={() => setSelectedTemplate(TEMPLATES.TRANSFERIR)}
+                                        className={`p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2 ${
+                                            selectedTemplate === TEMPLATES.TRANSFERIR
+                                                ? 'border-blue-500 bg-blue-100 shadow-md'
+                                                : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50'
+                                        }`}
+                                    >
+                                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                                            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </div>
+                                        <span className={`text-xs sm:text-sm font-medium ${
+                                            selectedTemplate === TEMPLATES.TRANSFERIR ? 'text-blue-700' : 'text-gray-600'
+                                        }`}>Transferir</span>
+                                        <span className="text-[10px] sm:text-xs text-gray-500">Clásico</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectedTemplate(TEMPLATES.DIMO)}
+                                        className={`p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2 ${
+                                            selectedTemplate === TEMPLATES.DIMO
+                                                ? 'border-blue-500 bg-blue-100 shadow-md'
+                                                : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50'
+                                        }`}
+                                    >
+                                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                                            <span className="text-white text-xs sm:text-sm font-bold">D</span>
+                                        </div>
+                                        <span className={`text-xs sm:text-sm font-medium ${
+                                            selectedTemplate === TEMPLATES.DIMO ? 'text-blue-700' : 'text-gray-600'
+                                        }`}>Dimo®</span>
+                                        <span className="text-[10px] sm:text-xs text-gray-500">Moderno</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectedTemplate(TEMPLATES.INTERNATIONAL)}
+                                        className={`p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2 ${
+                                            selectedTemplate === TEMPLATES.INTERNATIONAL
+                                                ? 'border-blue-500 bg-blue-100 shadow-md'
+                                                : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50'
+                                        }`}
+                                    >
+                                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-700 to-blue-900 rounded-lg flex items-center justify-center">
+                                            <span className="text-white text-xs sm:text-sm font-bold">INT</span>
+                                        </div>
+                                        <span className={`text-xs sm:text-sm font-medium ${
+                                            selectedTemplate === TEMPLATES.INTERNATIONAL ? 'text-blue-700' : 'text-gray-600'
+                                        }`}>Internacional</span>
+                                        <span className="text-[10px] sm:text-xs text-gray-500">Global</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectedTemplate(TEMPLATES.BBVA_PROOF)}
+                                        className={`p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2 ${
+                                            selectedTemplate === TEMPLATES.BBVA_PROOF
+                                                ? 'border-blue-500 bg-blue-100 shadow-md'
+                                                : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50'
+                                        }`}
+                                    >
+                                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-lg border border-blue-200 flex items-center justify-center overflow-hidden">
+                                            <img src={bbva2019Logo} alt="BBVA" className="w-7 sm:w-8 h-auto" />
+                                        </div>
+                                        <span className={`text-xs sm:text-sm font-medium ${
+                                            selectedTemplate === TEMPLATES.BBVA_PROOF ? 'text-blue-700' : 'text-gray-600'
+                                        }`}>Comprobante</span>
+                                        <span className="text-[10px] sm:text-xs text-gray-500">BBVA</span>
+                                    </button>
                                 </div>
                             </div>
 
@@ -792,6 +1309,148 @@ export default function App() {
                                     icon="📧"
                                 />
                             </FormSection>
+
+                            {selectedTemplate === TEMPLATES.INTERNATIONAL && (
+                                <FormSection
+                                    title="Datos internacionales"
+                                    icon="🌍"
+                                >
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                                        <FormField
+                                            label="Comisión transferencia"
+                                            name="transferCommission"
+                                            value={receiptData.transferCommission}
+                                            onChange={handleChange}
+                                            icon="💸"
+                                        />
+                                        <FormField
+                                            label="IVA comisión"
+                                            name="commissionVAT"
+                                            value={receiptData.commissionVAT}
+                                            onChange={handleChange}
+                                            icon="🧾"
+                                        />
+                                        <FormField
+                                            label="Importe a cargar"
+                                            name="debitAmount"
+                                            value={receiptData.debitAmount}
+                                            onChange={handleChange}
+                                            icon="💳"
+                                        />
+                                        <FormField
+                                            label="Monto divisa destino"
+                                            name="destinationAmount"
+                                            value={receiptData.destinationAmount}
+                                            onChange={handleChange}
+                                            icon="💶"
+                                        />
+                                        <FormField
+                                            label="Moneda destino"
+                                            name="destinationCurrency"
+                                            value={receiptData.destinationCurrency}
+                                            onChange={handleChange}
+                                            icon="🔤"
+                                            placeholder="EUR"
+                                        />
+                                        <FormField
+                                            label="Tipo de cambio"
+                                            name="exchangeRate"
+                                            value={receiptData.exchangeRate}
+                                            onChange={handleChange}
+                                            icon="📈"
+                                            placeholder="1 EUR = 20.9447 MXN"
+                                        />
+                                        <FormField
+                                            label="SWIFT/BIC"
+                                            name="receiverSwift"
+                                            value={receiptData.receiverSwift}
+                                            onChange={handleChange}
+                                            icon="🏛️"
+                                            placeholder="BSCHESMMXXX"
+                                        />
+                                        <FormField
+                                            label="Relación destinatario"
+                                            name="relationship"
+                                            value={receiptData.relationship}
+                                            onChange={handleChange}
+                                            icon="🤝"
+                                        />
+                                        <FormField
+                                            label="Motivo transferencia"
+                                            name="transferReason"
+                                            value={receiptData.transferReason}
+                                            onChange={handleChange}
+                                            icon="📌"
+                                        />
+                                        <FormField
+                                            label="Tipo de operación"
+                                            name="internationalOperationType"
+                                            value={receiptData.internationalOperationType}
+                                            onChange={handleChange}
+                                            icon="🌐"
+                                        />
+                                        <FormField
+                                            label="Actividad económica"
+                                            name="economicActivity"
+                                            value={receiptData.economicActivity}
+                                            onChange={handleChange}
+                                            icon="📚"
+                                        />
+                                        <FormField
+                                            label="Número de folio"
+                                            name="internationalFolio"
+                                            value={receiptData.internationalFolio}
+                                            onChange={handleChange}
+                                            icon="🧮"
+                                        />
+                                    </div>
+                                </FormSection>
+                            )}
+
+                            {selectedTemplate === TEMPLATES.BBVA_PROOF && (
+                                <FormSection
+                                    title="Datos del comprobante"
+                                    icon="📄"
+                                >
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                                        <FormField
+                                            label="Tipo de operación"
+                                            name="bbvaOperationType"
+                                            value={receiptData.bbvaOperationType}
+                                            onChange={handleChange}
+                                            icon="🏛️"
+                                        />
+                                        <FormField
+                                            label="URL CEP"
+                                            name="bbvaCepUrl"
+                                            value={receiptData.bbvaCepUrl}
+                                            onChange={handleChange}
+                                            icon="🔗"
+                                        />
+                                        <FormField
+                                            label="URL aclaración"
+                                            name="bbvaAclaracionUrl"
+                                            value={receiptData.bbvaAclaracionUrl}
+                                            onChange={handleChange}
+                                            icon="🌐"
+                                        />
+                                    </div>
+                                    <FormField
+                                        label="Footer línea 1"
+                                        name="bbvaFooterLine1"
+                                        value={receiptData.bbvaFooterLine1}
+                                        onChange={handleChange}
+                                        icon="🧾"
+                                    />
+                                    <FormField
+                                        label="Footer línea 2"
+                                        name="bbvaFooterLine2"
+                                        value={receiptData.bbvaFooterLine2}
+                                        onChange={handleChange}
+                                        icon="📍"
+                                    />
+                                </FormSection>
+                            )}
                             
                             {/* Mobile-specific instructions */}
                             <div className="block sm:hidden mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -838,9 +1497,19 @@ export default function App() {
 
                         <div className="lg:w-3/5 flex items-center justify-center bg-white rounded-2xl p-4 sm:p-6 lg:p-8 order-1 lg:order-2 border border-gray-200 shadow-xl">
                             <div className="text-center w-full">
-                                <h3 className="text-base sm:text-lg font-semibold text-blue-800 mb-3 sm:mb-4">Vista Previa</h3>
+                                <h3 className="text-base sm:text-lg font-semibold text-blue-800 mb-3 sm:mb-4">
+                                    Vista Previa - {selectedTemplate === TEMPLATES.DIMO ? 'Dimo®' : selectedTemplate === TEMPLATES.INTERNATIONAL ? 'Internacional' : selectedTemplate === TEMPLATES.BBVA_PROOF ? 'Comprobante BBVA' : 'Transferir'}
+                                </h3>
                                 <div className="flex justify-center max-sm:overflow-x-auto">
-                                    <ReceiptPreview ref={receiptRef} data={receiptData} />
+                                    {selectedTemplate === TEMPLATES.DIMO ? (
+                                        <DimoReceiptPreview ref={receiptRef} data={receiptData} />
+                                    ) : selectedTemplate === TEMPLATES.INTERNATIONAL ? (
+                                        <InternationalReceiptPreview ref={receiptRef} data={receiptData} />
+                                    ) : selectedTemplate === TEMPLATES.BBVA_PROOF ? (
+                                        <BbvaProofReceiptPreview ref={receiptRef} data={receiptData} />
+                                    ) : (
+                                        <ReceiptPreview ref={receiptRef} data={receiptData} />
+                                    )}
                                 </div>
                             </div>
                         </div>

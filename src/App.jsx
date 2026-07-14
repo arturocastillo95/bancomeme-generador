@@ -67,7 +67,8 @@ const TEMPLATES = {
     TRANSFERIR: 'transferir',
     DIMO: 'dimo',
     INTERNATIONAL: 'international',
-    BBVA_PROOF: 'bbva-proof'
+    BBVA_PROOF: 'bbva-proof',
+    BBVA_SAME_BANK: 'bbva-same-bank'
 };
 
 // The original receipt preview component (Transferir template)
@@ -460,7 +461,7 @@ const InternationalReceiptPreview = React.forwardRef(({ data }, ref) => {
     );
 });
 
-const BbvaProofReceiptPreview = React.forwardRef(({ data }, ref) => {
+const BbvaProofReceiptPreview = React.forwardRef(({ data, sameBank = false }, ref) => {
     const formatAmount = (amount) => {
         const number = parseFloat(amount);
         return isNaN(number)
@@ -483,7 +484,9 @@ const BbvaProofReceiptPreview = React.forwardRef(({ data }, ref) => {
                     <section className={styles.bbvaProofCard}>
                         <div className={styles.bbvaProofField}>
                             <p className={styles.bbvaProofLabel}>Tipo de operación</p>
-                            <p className={styles.bbvaProofValueStrong}>{data.bbvaOperationType}</p>
+                            <p className={styles.bbvaProofValueStrong}>
+                                {sameBank ? data.bbvaSameBankOperationType : data.bbvaOperationType}
+                            </p>
                         </div>
                         <div className={styles.bbvaProofField}>
                             <p className={styles.bbvaProofLabel}>Folio de la operación</p>
@@ -501,12 +504,14 @@ const BbvaProofReceiptPreview = React.forwardRef(({ data }, ref) => {
                             <p className={styles.bbvaProofLabel}>Concepto</p>
                             <p className={styles.bbvaProofValueStrong}>{data.concept}</p>
                         </div>
-                        <div className={styles.bbvaProofField}>
-                            <p className={styles.bbvaProofLabel}>Clave de rastreo</p>
-                            <p className={`${styles.bbvaProofValueStrong} ${styles.bbvaProofTracking}`}>
-                                {data.trackingKey}
-                            </p>
-                        </div>
+                        {!sameBank && (
+                            <div className={styles.bbvaProofField}>
+                                <p className={styles.bbvaProofLabel}>Clave de rastreo</p>
+                                <p className={`${styles.bbvaProofValueStrong} ${styles.bbvaProofTracking}`}>
+                                    {data.trackingKey}
+                                </p>
+                            </div>
+                        )}
                     </section>
 
                     <section className={styles.bbvaProofCard}>
@@ -530,7 +535,9 @@ const BbvaProofReceiptPreview = React.forwardRef(({ data }, ref) => {
                         </div>
                         <div className={styles.bbvaProofField}>
                             <p className={styles.bbvaProofLabel}>Nombre del banco</p>
-                            <p className={styles.bbvaProofValueStrong}>{data.receiverBank}</p>
+                            <p className={styles.bbvaProofValueStrong}>
+                                {sameBank ? data.bbvaSameBankBankName : data.receiverBank}
+                            </p>
                         </div>
                         <div className={styles.bbvaProofFieldCompact}>
                             <p className={styles.bbvaProofLabel}>Cuenta de destino</p>
@@ -538,16 +545,18 @@ const BbvaProofReceiptPreview = React.forwardRef(({ data }, ref) => {
                         </div>
                     </section>
 
-                    <section className={styles.bbvaProofCard}>
-                        <div className={styles.bbvaProofField}>
-                            <p className={styles.bbvaProofLabel}>Verifica el estatus de tu operación en</p>
-                            <p className={styles.bbvaProofLink}>{data.bbvaCepUrl}</p>
-                        </div>
-                        <div className={styles.bbvaProofFieldCompact}>
-                            <p className={styles.bbvaProofLabel}>Información sobre aclaración SPEI en</p>
-                            <p className={styles.bbvaProofLink}>{data.bbvaAclaracionUrl}</p>
-                        </div>
-                    </section>
+                    {!sameBank && (
+                        <section className={styles.bbvaProofCard}>
+                            <div className={styles.bbvaProofField}>
+                                <p className={styles.bbvaProofLabel}>Verifica el estatus de tu operación en</p>
+                                <p className={styles.bbvaProofLink}>{data.bbvaCepUrl}</p>
+                            </div>
+                            <div className={styles.bbvaProofFieldCompact}>
+                                <p className={styles.bbvaProofLabel}>Información sobre aclaración SPEI en</p>
+                                <p className={styles.bbvaProofLink}>{data.bbvaAclaracionUrl}</p>
+                            </div>
+                        </section>
+                    )}
 
                     <footer className={styles.bbvaProofFooter}>
                         <p>{data.bbvaFooterLine1}</p>
@@ -589,6 +598,8 @@ export default function App() {
         economicActivity: 'GESTOR CULTURAL',
         internationalFolio: '8355212',
         bbvaOperationType: 'Transferencia a otros bancos',
+        bbvaSameBankOperationType: 'Transferencia a terceros',
+        bbvaSameBankBankName: 'Cuenta BBVA',
         bbvaCepUrl: 'https://www.banxico.org.mx/cep/',
         bbvaAclaracionUrl: 'www.bbva.mx',
         bbvaFooterLine1: 'BBVA México, S.A., Institución de Banca Múltiple, Grupo Financiero BBVA México.',
@@ -1111,7 +1122,7 @@ export default function App() {
                                     <span className="mr-2 text-blue-600">🎨</span>
                                     Selecciona el Estilo del Recibo
                                 </h3>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                                     <button
                                         onClick={() => setSelectedTemplate(TEMPLATES.TRANSFERIR)}
                                         className={`p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2 ${
@@ -1176,7 +1187,23 @@ export default function App() {
                                         <span className={`text-xs sm:text-sm font-medium ${
                                             selectedTemplate === TEMPLATES.BBVA_PROOF ? 'text-blue-700' : 'text-gray-600'
                                         }`}>Comprobante</span>
-                                        <span className="text-[10px] sm:text-xs text-gray-500">BBVA</span>
+                                        <span className="text-[10px] sm:text-xs text-gray-500">Otros bancos</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectedTemplate(TEMPLATES.BBVA_SAME_BANK)}
+                                        className={`p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2 ${
+                                            selectedTemplate === TEMPLATES.BBVA_SAME_BANK
+                                                ? 'border-blue-500 bg-blue-100 shadow-md'
+                                                : 'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50'
+                                        }`}
+                                    >
+                                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-lg border border-blue-200 flex items-center justify-center overflow-hidden">
+                                            <img src={bbva2019Logo} alt="BBVA" className="w-7 sm:w-8 h-auto" />
+                                        </div>
+                                        <span className={`text-xs sm:text-sm font-medium ${
+                                            selectedTemplate === TEMPLATES.BBVA_SAME_BANK ? 'text-blue-700' : 'text-gray-600'
+                                        }`}>Comprobante</span>
+                                        <span className="text-[10px] sm:text-xs text-gray-500">BBVA a BBVA</span>
                                     </button>
                                 </div>
                             </div>
@@ -1451,6 +1478,44 @@ export default function App() {
                                     />
                                 </FormSection>
                             )}
+
+                            {selectedTemplate === TEMPLATES.BBVA_SAME_BANK && (
+                                <FormSection
+                                    title="Datos del comprobante BBVA"
+                                    icon="📄"
+                                >
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                                        <FormField
+                                            label="Tipo de operación"
+                                            name="bbvaSameBankOperationType"
+                                            value={receiptData.bbvaSameBankOperationType}
+                                            onChange={handleChange}
+                                            icon="🏛️"
+                                        />
+                                        <FormField
+                                            label="Nombre del banco"
+                                            name="bbvaSameBankBankName"
+                                            value={receiptData.bbvaSameBankBankName}
+                                            onChange={handleChange}
+                                            icon="🏦"
+                                        />
+                                    </div>
+                                    <FormField
+                                        label="Footer línea 1"
+                                        name="bbvaFooterLine1"
+                                        value={receiptData.bbvaFooterLine1}
+                                        onChange={handleChange}
+                                        icon="🧾"
+                                    />
+                                    <FormField
+                                        label="Footer línea 2"
+                                        name="bbvaFooterLine2"
+                                        value={receiptData.bbvaFooterLine2}
+                                        onChange={handleChange}
+                                        icon="📍"
+                                    />
+                                </FormSection>
+                            )}
                             
                             {/* Mobile-specific instructions */}
                             <div className="block sm:hidden mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -1498,7 +1563,7 @@ export default function App() {
                         <div className="lg:w-3/5 flex items-center justify-center bg-white rounded-2xl p-4 sm:p-6 lg:p-8 order-1 lg:order-2 border border-gray-200 shadow-xl">
                             <div className="text-center w-full">
                                 <h3 className="text-base sm:text-lg font-semibold text-blue-800 mb-3 sm:mb-4">
-                                    Vista Previa - {selectedTemplate === TEMPLATES.DIMO ? 'Dimo®' : selectedTemplate === TEMPLATES.INTERNATIONAL ? 'Internacional' : selectedTemplate === TEMPLATES.BBVA_PROOF ? 'Comprobante BBVA' : 'Transferir'}
+                                    Vista Previa - {selectedTemplate === TEMPLATES.DIMO ? 'Dimo®' : selectedTemplate === TEMPLATES.INTERNATIONAL ? 'Internacional' : selectedTemplate === TEMPLATES.BBVA_PROOF ? 'Comprobante BBVA - Otros bancos' : selectedTemplate === TEMPLATES.BBVA_SAME_BANK ? 'Comprobante BBVA - Mismo banco' : 'Transferir'}
                                 </h3>
                                 <div className="flex justify-center max-sm:overflow-x-auto">
                                     {selectedTemplate === TEMPLATES.DIMO ? (
@@ -1507,6 +1572,8 @@ export default function App() {
                                         <InternationalReceiptPreview ref={receiptRef} data={receiptData} />
                                     ) : selectedTemplate === TEMPLATES.BBVA_PROOF ? (
                                         <BbvaProofReceiptPreview ref={receiptRef} data={receiptData} />
+                                    ) : selectedTemplate === TEMPLATES.BBVA_SAME_BANK ? (
+                                        <BbvaProofReceiptPreview ref={receiptRef} data={receiptData} sameBank />
                                     ) : (
                                         <ReceiptPreview ref={receiptRef} data={receiptData} />
                                     )}
